@@ -3,24 +3,24 @@ class Checker::MoveService
 
   LAST_ROW = { 1 => 7, 2 => 0 }.freeze
 
-  def self.call(game, from, to, player, token)
-    new(game, from, to, player, token).call
+  def self.call(game, from, to, player)
+    new(game, from, to, player).call
   end
 
-  def initialize(game, from, to, player, token)
+  def initialize(game, from, to, player)
     @game = game
-    @from = parse_coordinates(from)
-    @to = parse_coordinates(to)
+    @from = from
+    @to = to
     @player = player
-    @token = token
   end
 
   def call
+    raise MoveError, "As coordenadas de origem e destino são obrigatórias" if @from.blank? || @to.blank?
     raise MoveError, "A partida não está em andamento" unless @game.in_progress?
     raise MoveError, "Não é o seu turno" unless @game.turn_for?(@player)
 
-    from_row, from_col = @from
-    to_row, to_col = @to
+    from_row, from_col = parse_coordinates(@from)
+    to_row, to_col = parse_coordinates(@to)
 
     board = @game.board_state
 
@@ -34,20 +34,30 @@ class Checker::MoveService
 
     # Durante uma cadeia de capturas, só é permitido continuar capturando
     raise MoveError, "Você deve continuar capturando" if @game.chain_in_progress? && result.captured_at.nil?
-    
-    new_board = apply_move(board, from_row, from_col, to_row, to_col, result.captured_at)
-    if result.captured_at && more_captures?(new_board, new_board[to_row][to_col], to_row, to_col)
+
+    updated_board = apply_move(board, from_row, from_col, to_row, to_col, result.captured_at)
+
+    # Fim de partida: o oponente ficou sem peças
+    winner = ::Checker::GameRulesService.check_end(updated_board, @player)
+    if winner
+      @game.update!(
+        board_state: updated_board,
+        capture_chain: nil,
+        status: :finished,
+        winner: winner
+      )
+    elsif result.captured_at && more_captures?(updated_board, updated_board[to_row][to_col], to_row, to_col)
       # Ainda há captura disponível: mantém o turno e registra a peça da cadeia
       @game.update!(
-        board_state:   new_board,
+        board_state: updated_board,
         capture_chain: { "row" => to_row, "col" => to_col }
       )
     else
       # Fim da jogada: limpa a cadeia e passa o turno
       @game.update!(
-        board_state:   new_board,
+        board_state: updated_board,
         capture_chain: nil,
-        current_turn:  next_turn(@player)
+        current_turn: next_turn(@player)
       )
     end
   end
@@ -92,18 +102,10 @@ class Checker::MoveService
   end
 
   def parse_coordinates(coord)
-    [coord[:row].to_i, coord[:col].to_i]
+    [ coord[:row].to_i, coord[:col].to_i ]
   end
 
   def next_turn(player)
     player == 1 ? :player_2 : :player_1
-  end
-
-  def game_not_in_progress(status)
-    status.to_s != "in_progress"
-  end
-
-  def not_player_turn(current_turn, player)
-    current_turn.to_s != "player_#{player}"
   end
 end

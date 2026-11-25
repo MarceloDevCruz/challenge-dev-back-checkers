@@ -1,8 +1,6 @@
 class Api::V1::GamesController < ApplicationController
   include Authenticatable
 
-  before_action :set_game, only: [ :join, :board, :valid_moves, :move ]
-
   # POST /api/v1/games
   def create
     game = ::Game::CreateGameService.call
@@ -11,35 +9,44 @@ class Api::V1::GamesController < ApplicationController
 
   # POST /api/v1/games/:id/join
   def join
-    @game = ::Game::JoinGameService.call(game_id: @current_game.id, token: extract_token)
-    render json: ::JoinGameSerializer.new(@game).serializable_hash, status: :ok
+    game = ::Game::JoinGameService.call(game_id: current_game.id, token: extract_token)
+    render json: ::JoinGameSerializer.new(game).serializable_hash, status: :ok
+  rescue ::Game::JoinGameService::ForbiddenError => e
+    render json: { error: e.message }, status: :forbidden
   rescue ::Game::JoinGameService::JoinError => e
-    render json: { error: e.message }, status: :unauthorized
+    render json: { error: e.message }, status: :unprocessable_content
   end
 
   # GET /api/v1/games/:id/board
   def board
-    render json: ::BoardGameSerializer.new(@game).serializable_hash, status: :ok
+    render json: ::BoardGameSerializer.new(current_game).serializable_hash, status: :ok
   end
 
-  # GET /api/v1/games/:id/valid_moves
+  # GET /api/v1/games/:id/status
+  def game_status
+    render json: ::GameStatusSerializer.new(current_game).serializable_hash, status: :ok
+  end
+
+  # GET /api/v1/games/:id/valid_moves?from[row]=2&from[col]=1
   def valid_moves
-    @game = ::Checker::ValidMoveService.call(game_id: @current_game.id, token: extract_token)
+    moves = ::Checker::ValidMoveService.call(current_game, params[:from], current_player)
+    serializer_params = { from: from_coordinates, valid_moves: moves }
+    render json: ::ValidMovesSerializer.new(current_game, params: serializer_params).serializable_hash, status: :ok
   rescue ::Checker::ValidMoveService::ValidMoveError => e
-    render json: { error: e.message }, status: :unauthorized
+    render json: { error: e.message }, status: :unprocessable_content
   end
 
   # POST /api/v1/games/:id/move
   def move
-    ::Checker::MoveService.call(@game, params[:from], params[:to], @current_player, extract_token)
-    render json: ::MoveSerializer.new(@game).serializable_hash, status: :ok
+    ::Checker::MoveService.call(current_game, params[:from], params[:to], current_player)
+    render json: ::MoveSerializer.new(current_game).serializable_hash, status: :ok
   rescue ::Checker::MoveService::MoveError => e
-    render json: { error: e.message }, status: :unauthorized
+    render json: { error: e.message }, status: :unprocessable_content
   end
 
   private
 
-  def set_game
-    @game = Game.find(params[:id])
+  def from_coordinates
+    { row: params[:from][:row].to_i, col: params[:from][:col].to_i }
   end
 end

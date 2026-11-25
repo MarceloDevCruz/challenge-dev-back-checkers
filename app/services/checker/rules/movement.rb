@@ -4,7 +4,7 @@ class Checker::Rules::Movement
   end
 
   def valid?
-    single_step? && forward_for_player? && ::Checker::Rules::Geometry.empty?(@move.board, @move.to_row, @move.to_col)
+    @move.diagonal? && single_step? && forward_for_player? && ::Checker::Rules::Geometry.empty?(@move.board, @move.to_row, @move.to_col)
   end
 
   private

@@ -21,7 +21,7 @@ class Game < ApplicationRecord
 
   def player_for_token(token)
     return 1 if ActiveSupport::SecurityUtils.secure_compare(player_1_token, token)
-    return 2 if ActiveSupport::SecurityUtils.secure_compare(player_2_token, token)
+    2 if ActiveSupport::SecurityUtils.secure_compare(player_2_token, token)
   end
 
   def turn_for?(player)
@@ -30,5 +30,14 @@ class Game < ApplicationRecord
 
   def chain_in_progress?
     capture_chain.present?
+  end
+
+  # Status legível da partida: "waiting for opponent", "player_1 turn", "player_2 turn", "player_1 won", "player_2 won"
+  def status_description
+    return "waiting for opponent" if waiting_for_player?
+    return "#{current_turn} turn" if in_progress?
+    return "draw" if winner_draw?
+
+    "#{winner.delete_suffix("_wins")} won"
   end
 end

@@ -12,6 +12,7 @@ Rails.application.routes.draw do
           post :join
           post :move
           get :board
+          get :status, action: :game_status
           get :valid_moves
         end
       end

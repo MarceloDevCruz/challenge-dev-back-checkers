@@ -1,5 +1,6 @@
 class Game::JoinGameService
   class JoinError < StandardError; end
+  class ForbiddenError < JoinError; end
 
   def self.call(game_id:, token:)
     new(game_id: game_id, token: token).call
@@ -13,9 +14,8 @@ class Game::JoinGameService
   def call
     game = Game.find(@game_id)
 
-    unless game.joinable? && game.valid_player_2_token?(@token)
-      raise JoinError, "Token invalido ou a partida não está disponível para entrar"
-    end
+    raise ForbiddenError, "Apenas o token do player 2 pode entrar na partida" unless game.valid_player_2_token?(@token)
+    raise JoinError, "A partida não está disponível para entrar" unless game.joinable?
 
     game.start!
     game

@@ -7,8 +7,4 @@ class Piece
   def self.king
     "king"
   end
-
-  def promote
-    Piece.new(player: @player, type: "king")
-  end
 end
