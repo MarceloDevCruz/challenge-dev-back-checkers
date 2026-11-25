@@ -54,7 +54,7 @@ POST /api/v1/games
 
 **Entrar na partida:** `POST /api/v1/games/1/join` com o token do player 2.
 
-**Status:** pode ser `waiting for opponent`, `player_1 turn`, `player_2 turn`, `player_1 won` ou `player_2 won`.
+**Status:** pode ser `waiting for opponent`, `player_1 turn`, `player_2 turn`, `player_1_wins` ou `player_2_wins`.
 
 ```json
 GET /api/v1/games/1/status

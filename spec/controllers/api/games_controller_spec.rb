@@ -79,7 +79,7 @@ RSpec.describe Api::V1::GamesController, type: :request do
       expect(attributes["status"]).to eq("finished")
 
       get "/api/v1/games/#{game.id}/status", headers: player_2_headers
-      expect(attributes["status"]).to eq("player_1 won")
+      expect(attributes["status"]).to eq("player_1_wins")
 
       get "/api/v1/games/#{game.id}/board", headers: player_2_headers
       expect(attributes["winner"]).to eq("player_1_wins")

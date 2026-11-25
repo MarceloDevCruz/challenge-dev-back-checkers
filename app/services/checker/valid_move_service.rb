@@ -11,8 +11,8 @@ class Checker::ValidMoveService
     @player = player
   end
 
-  # Retorna as ações possíveis da peça na coordenada de origem:
-  # [ { to: { row:, col: }, capture: true|false }, ... ]
+  # Retorna a origem (já convertida) e as ações possíveis da peça nessa coordenada:
+  # { from: { row:, col: }, valid_moves: [ { to: { row:, col: }, capture: true|false }, ... ] }
   def call
     raise ValidMoveError, "A coordenada de origem é obrigatória" if @from.blank?
     raise ValidMoveError, "A partida não está em andamento" unless @game.in_progress?
@@ -33,7 +33,9 @@ class Checker::ValidMoveService
     end
 
     # Durante uma cadeia de capturas, só é permitido continuar capturando
-    @game.chain_in_progress? ? moves.select { |move| move[:capture] } : moves
+    moves = moves.select { |move| move[:capture] } if @game.chain_in_progress?
+
+    { from: { row: from_row, col: from_col }, valid_moves: moves }
   end
 
   private

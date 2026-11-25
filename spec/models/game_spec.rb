@@ -14,12 +14,12 @@ RSpec.describe Game do
       expect(build(:game, current_turn: :player_2).status_description).to eq("player_2 turn")
     end
 
-    it "retorna 'player_1 won' quando o jogador 1 venceu" do
-      expect(build(:game, status: :finished, winner: :player_1_wins).status_description).to eq("player_1 won")
+    it "retorna 'player_1_wins' quando o jogador 1 venceu" do
+      expect(build(:game, status: :finished, winner: :player_1_wins).status_description).to eq("player_1_wins")
     end
 
-    it "retorna 'player_2 won' quando o jogador 2 venceu" do
-      expect(build(:game, status: :finished, winner: :player_2_wins).status_description).to eq("player_2 won")
+    it "retorna 'player_2_wins' quando o jogador 2 venceu" do
+      expect(build(:game, status: :finished, winner: :player_2_wins).status_description).to eq("player_2_wins")
     end
   end
 end

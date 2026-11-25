@@ -30,8 +30,7 @@ class Api::V1::GamesController < ApplicationController
   # GET /api/v1/games/:id/valid_moves?from[row]=2&from[col]=1
   def valid_moves
     moves = ::Checker::ValidMoveService.call(current_game, params[:from], current_player)
-    serializer_params = { from: from_coordinates, valid_moves: moves }
-    render json: ::ValidMovesSerializer.new(current_game, params: serializer_params).serializable_hash, status: :ok
+    render json: ::ValidMovesSerializer.new(current_game, params: moves).serializable_hash, status: :ok
   rescue ::Checker::ValidMoveService::ValidMoveError => e
     render json: { error: e.message }, status: :unprocessable_content
   end
@@ -42,11 +41,5 @@ class Api::V1::GamesController < ApplicationController
     render json: ::MoveSerializer.new(current_game).serializable_hash, status: :ok
   rescue ::Checker::MoveService::MoveError => e
     render json: { error: e.message }, status: :unprocessable_content
-  end
-
-  private
-
-  def from_coordinates
-    { row: params[:from][:row].to_i, col: params[:from][:col].to_i }
   end
 end

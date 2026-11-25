@@ -32,12 +32,11 @@ class Game < ApplicationRecord
     capture_chain.present?
   end
 
-  # Status legível da partida: "waiting for opponent", "player_1 turn", "player_2 turn", "player_1 won", "player_2 won"
+  # Status legível da partida: "waiting for opponent", "player_1 turn", "player_2 turn", "player_1_wins", "player_2_wins" (valor do enum winner)
   def status_description
     return "waiting for opponent" if waiting_for_player?
     return "#{current_turn} turn" if in_progress?
-    return "draw" if winner_draw?
 
-    "#{winner.delete_suffix("_wins")} won"
+    winner
   end
 end
