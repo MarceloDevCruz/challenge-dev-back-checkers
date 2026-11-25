@@ -19,7 +19,7 @@ gem "tzinfo-data", platforms: %i[ windows jruby ]
 gem "solid_cache"
 gem "solid_queue"
 gem "solid_cable"
-gem "json", "< 3.0"
+gem "json", "< 4.0"
 gem "jsonapi-serializer"
 gem "draper"
 
