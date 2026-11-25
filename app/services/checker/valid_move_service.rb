@@ -14,9 +14,9 @@ class Checker::ValidMoveService
   # Retorna a origem (já convertida) e as ações possíveis da peça nessa coordenada:
   # { from: { row:, col: }, valid_moves: [ { to: { row:, col: }, capture: true|false }, ... ] }
   def call
-    raise ValidMoveError, "A coordenada de origem é obrigatória" if @from.blank?
-    raise ValidMoveError, "A partida não está em andamento" unless @game.in_progress?
-    raise ValidMoveError, "Não é o seu turno" unless @game.turn_for?(@player)
+    raise ValidMoveError, I18n.t("errors.move.origin_required") if @from.blank?
+    raise ValidMoveError, I18n.t("errors.game.not_in_progress") unless @game.in_progress?
+    raise ValidMoveError, I18n.t("errors.game.not_your_turn") unless @game.turn_for?(@player)
 
     from_row, from_col = parse_coordinates(@from)
     board = @game.board_state
@@ -41,11 +41,11 @@ class Checker::ValidMoveService
   private
 
   def validate_origin!(board, row, col)
-    raise ValidMoveError, "Coordenadas fora do tabuleiro" unless ::Checker::Rules::Geometry.on_board?(row, col)
+    raise ValidMoveError, I18n.t("errors.move.off_board") unless ::Checker::Rules::Geometry.on_board?(row, col)
 
     piece = board[row][col]
-    raise ValidMoveError, "Não há peça na posição de origem" if piece.nil?
-    raise ValidMoveError, "A peça selecionada pertence ao oponente" unless piece["player"] == @player
+    raise ValidMoveError, I18n.t("errors.move.no_piece_at_origin") if piece.nil?
+    raise ValidMoveError, I18n.t("errors.move.opponent_piece") unless piece["player"] == @player
   end
 
   def validate_chain_origin!(row, col)
@@ -54,7 +54,7 @@ class Checker::ValidMoveService
     chain = @game.capture_chain
 
     unless chain["row"] == row && chain["col"] == col
-      raise ValidMoveError, "Você deve continuar a captura com a mesma peça"
+      raise ValidMoveError, I18n.t("errors.move.must_capture_with_same_piece")
     end
   end
 

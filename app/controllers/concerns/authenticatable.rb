@@ -7,12 +7,12 @@ module Authenticatable
 
   def authenticate_player
     token = extract_token
-    return render json: { error: "Token de acesso não informado" }, status: :unauthorized unless token
+    return render json: { error: I18n.t("errors.auth.missing_token") }, status: :unauthorized unless token
 
     @current_game = Game.find(params[:id])
     @current_player = @current_game.player_for_token(token)
 
-    render json: { error: "Token de acesso inválido para esta partida" }, status: :unauthorized unless @current_player
+    render json: { error: I18n.t("errors.auth.invalid_token") }, status: :unauthorized unless @current_player
   end
 
   def extract_token

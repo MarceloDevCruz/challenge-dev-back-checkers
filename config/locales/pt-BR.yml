@@ -1,0 +1,22 @@
+pt-BR:
+  errors:
+    auth:
+      missing_token: "Token de acesso não informado"
+      invalid_token: "Token de acesso inválido para esta partida"
+    game:
+      not_found: "Partida não encontrada"
+      not_in_progress: "A partida não está em andamento"
+      not_your_turn: "Não é o seu turno"
+      not_joinable: "A partida não está disponível para entrar"
+      join_forbidden: "Apenas o token do player 2 pode entrar na partida"
+    move:
+      coordinates_required: "As coordenadas de origem e destino são obrigatórias"
+      origin_required: "A coordenada de origem é obrigatória"
+      off_board: "Coordenadas fora do tabuleiro"
+      not_diagonal: "O movimento deve ser diagonal"
+      no_piece_at_origin: "Não há peça na posição de origem"
+      opponent_piece: "A peça selecionada pertence ao oponente"
+      destination_not_empty: "A casa de destino precisa estar vazia"
+      invalid_for_piece: "Movimento inválido para esta peça"
+      must_continue_capture: "Você deve continuar capturando"
+      must_capture_with_same_piece: "Você deve continuar a captura com a mesma peça"

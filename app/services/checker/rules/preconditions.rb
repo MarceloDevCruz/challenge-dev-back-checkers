@@ -9,14 +9,15 @@ class Checker::Rules::Preconditions
 
   def call
     rules = [
-      { valid: on_board?, message: "Coordenadas fora do tabuleiro" },
-      { valid: @move.diagonal?, message: "O movimento deve ser diagonal" },
-      { valid: !@move.piece.nil?, message: "Não há peça na posição de origem" },
-      { valid: owned_by_player?, message: "A peça selecionada pertence ao oponente" },
-      { valid: ::Checker::Rules::Geometry.empty?(@move.board, @move.to_row, @move.to_col), message: "A casa de destino precisa estar vazia" }
+      { valid: on_board?, message: :off_board },
+      { valid: @move.diagonal?, message: :not_diagonal },
+      { valid: !@move.piece.nil?, message: :no_piece_at_origin },
+      { valid: owned_by_player?, message: :opponent_piece },
+      { valid: ::Checker::Rules::Geometry.empty?(@move.board, @move.to_row, @move.to_col), message: :destination_not_empty }
     ]
 
-    rules.find { |rule| !rule[:valid] }&.dig(:message)
+    failed_rule = rules.find { |rule| !rule[:valid] }
+    I18n.t(failed_rule[:message], scope: "errors.move") if failed_rule
   end
 
   private

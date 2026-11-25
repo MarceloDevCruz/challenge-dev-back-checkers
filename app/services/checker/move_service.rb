@@ -15,9 +15,9 @@ class Checker::MoveService
   end
 
   def call
-    raise MoveError, "As coordenadas de origem e destino são obrigatórias" if @from.blank? || @to.blank?
-    raise MoveError, "A partida não está em andamento" unless @game.in_progress?
-    raise MoveError, "Não é o seu turno" unless @game.turn_for?(@player)
+    raise MoveError, I18n.t("errors.move.coordinates_required") if @from.blank? || @to.blank?
+    raise MoveError, I18n.t("errors.game.not_in_progress") unless @game.in_progress?
+    raise MoveError, I18n.t("errors.game.not_your_turn") unless @game.turn_for?(@player)
 
     from_row, from_col = parse_coordinates(@from)
     to_row, to_col = parse_coordinates(@to)
@@ -33,7 +33,7 @@ class Checker::MoveService
     raise MoveError, result.error unless result.valid?
 
     # Durante uma cadeia de capturas, só é permitido continuar capturando
-    raise MoveError, "Você deve continuar capturando" if @game.chain_in_progress? && result.captured_at.nil?
+    raise MoveError, I18n.t("errors.move.must_continue_capture") if @game.chain_in_progress? && result.captured_at.nil?
 
     updated_board = apply_move(board, from_row, from_col, to_row, to_col, result.captured_at)
 
@@ -93,7 +93,7 @@ class Checker::MoveService
     chain = @game.capture_chain
 
     unless chain["row"] == from_row && chain["col"] == from_col
-      raise MoveError, "Você deve continuar a captura com a mesma peça"
+      raise MoveError, I18n.t("errors.move.must_capture_with_same_piece")
     end
   end
 

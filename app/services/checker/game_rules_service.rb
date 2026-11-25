@@ -33,7 +33,7 @@ class Checker::GameRulesService
     capture = Checker::Rules::Capture.new(@move)
 
     unless movement.valid? || capture.valid?
-      return Result.new(valid?: false, error: "Movimento inválido para esta peça", captured_at: nil)
+      return Result.new(valid?: false, error: I18n.t("errors.move.invalid_for_piece"), captured_at: nil)
     end
 
     Result.new(valid?: true, error: nil, captured_at: capture.captured_square)
